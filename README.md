@@ -116,4 +116,4 @@ This project enhanced my understanding of:
 
 ## License
 
-This project is open-source and available under the [MIT License](LICENSE) (You can add a LICENSE file later).
+This project is open-source and available under the [MIT License].
