@@ -1,0 +1,7 @@
+# Logs
+*.log
+logs/
+
+# OS generated files
+.DS_Store
+.vscode/ # If you use VS Code
