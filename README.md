@@ -1,6 +1,7 @@
 # Linux System Health Monitor
 
-A simple yet robust Bash script to monitor critical system metrics (CPU, Memory, Disk) on a Linux server and send email alerts if predefined thresholds are exceeded. This project demonstrates fundamental Linux command-line skills, Bash scripting, and automation using cron.
+A simple yet robust Bash script to monitor critical system metrics (CPU, Memory, Disk) on a Linux server and send email alerts if predefined thresholds are exceeded. This project demonstrates fundamental Linux command-line skills, Bash scripting, and automation using corn.
+![Screenshot 2025-05-26 214812](https://github.com/user-attachments/assets/df1db648-4911-40f2-a136-76ae384e3174)
 
 ## Features
 
