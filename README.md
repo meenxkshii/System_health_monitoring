@@ -8,6 +8,7 @@ A simple yet robust Bash script to monitor critical system metrics (CPU, Memory,
 * Configurable thresholds for each metric.
 * Sends email alerts when thresholds are breached.
 * Automated scheduling via Cron.
+* Provides a simple web dashboard for real-time and historical metric visualization.
 
 ## Technologies Used
 
@@ -61,6 +62,15 @@ A simple yet robust Bash script to monitor critical system metrics (CPU, Memory,
     ```
     * **Remember to replace `/home/your_username/your_repo_name/` with the actual path to your cloned repository.**
     * Save and exit the crontab editor.
+
+6.  **View the Web Dashboard:**
+    After the `system_monitor.sh` script has run a few times (either manually or via cron), it will generate `current_metrics.json` and `metrics_history.csv` in the same directory.
+    You can then open `dashboard.html` directly in your web browser to view the metrics:
+    ```bash
+    xdg-open ~/devops_projects/dashboard.html
+    ```
+    (Replace `~/devops_projects/` with the actual path if you cloned it elsewhere).
+    Click the "Refresh Data" button on the dashboard to load the latest metrics.
 
 ## How it Works (Learning Outcomes)
 

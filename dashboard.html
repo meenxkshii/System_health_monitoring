@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Health Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font and rounded corners */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #374151; /* Dark gray text */
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+            padding: 1.5rem; /* p-6 */
+        }
+        .alert-card {
+            background-color: #fee2e2; /* Red-100 */
+            border-left: 4px solid #ef4444; /* Red-500 */
+            color: #b91c1c; /* Red-800 */
+        }
+        .normal-card {
+            background-color: #d1fae5; /* Green-100 */
+            border-left: 4px solid #10b981; /* Green-500 */
+            color: #065f46; /* Green-800 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+        }
+        th {
+            background-color: #f9fafb; /* gray-50 */
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-4xl mx-auto space-y-6">
+        <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-8">System Health Dashboard</h1>
+
+        <div id="current-metrics-card" class="card">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Current System Status</h2>
+            <div id="current-metrics-content" class="text-lg">
+                <p><strong>Hostname:</strong> <span id="hostname">Loading...</span></p>
+                <p><strong>CPU Usage:</strong> <span id="cpu-usage">Loading...</span></p>
+                <p><strong>Memory Usage:</strong> <span id="memory-usage">Loading...</span></p>
+                <p><strong>Disk Usage:</strong> <span id="disk-usage">Loading...</span></p>
+                <p><strong>Last Updated:</strong> <span id="last-updated">Loading...</span></p>
+                <p id="alert-status" class="font-semibold mt-2"></p>
+            </div>
+            <button id="refresh-button" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 ease-in-out">Refresh Data</button>
+        </div>
+
+        <div class="card">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">Historical Metrics (Last 100 Entries)</h2>
+            <div class="overflow-x-auto">
+                <table id="history-table" class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hostname</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CPU (%)</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Memory (%)</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Disk (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr><td colspan="5" class="text-center py-4">Loading historical data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to fetch and display current metrics
+        async function fetchCurrentMetrics() {
+            try {
+                const response = await fetch('./current_metrics.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                document.getElementById('hostname').textContent = data.hostname;
+                document.getElementById('cpu-usage').textContent = `${data.cpu}%`;
+                document.getElementById('memory-usage').textContent = `${data.memory}%`;
+                document.getElementById('disk-usage').textContent = `${data.disk}%`;
+                document.getElementById('last-updated').textContent = data.timestamp;
+
+                const alertStatusElement = document.getElementById('alert-status');
+                const currentMetricsCard = document.getElementById('current-metrics-card');
+
+                // Update alert status and card styling
+                currentMetricsCard.classList.remove('alert-card', 'normal-card'); // Clear previous classes
+                if (data.alert_triggered) {
+                    alertStatusElement.textContent = 'Status: ALERT TRIGGERED!';
+                    alertStatusElement.classList.add('text-red-600');
+                    alertStatusElement.classList.remove('text-green-600');
+                    currentMetricsCard.classList.add('alert-card');
+                } else {
+                    alertStatusElement.textContent = 'Status: All Systems Normal';
+                    alertStatusElement.classList.add('text-green-600');
+                    alertStatusElement.classList.remove('text-red-600');
+                    currentMetricsCard.classList.add('normal-card');
+                }
+
+            } catch (error) {
+                console.error('Error fetching current metrics:', error);
+                document.getElementById('current-metrics-content').innerHTML = '<p class="text-red-500">Failed to load current metrics. Ensure `system_monitor.sh` is running and `current_metrics.json` exists.</p>';
+            }
+        }
+
+        // Function to fetch and display historical metrics
+        async function fetchHistoricalMetrics() {
+            try {
+                const response = await fetch('./metrics_history.csv');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+                const lines = text.trim().split('\n');
+                const tableBody = document.querySelector('#history-table tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                // Skip header line and iterate in reverse to show most recent at top
+                for (let i = lines.length - 1; i > 0; i--) {
+                    const columns = lines[i].split(',');
+                    if (columns.length === 5) { // Ensure correct number of columns
+                        const row = tableBody.insertRow();
+                        row.insertCell().textContent = columns[0]; // Timestamp
+                        row.insertCell().textContent = columns[1]; // Hostname
+                        row.insertCell().textContent = `${columns[2]}%`; // CPU
+                        row.insertCell().textContent = `${columns[3]}%`; // Memory
+                        row.insertCell().textContent = `${columns[4]}%`; // Disk
+                    }
+                }
+                if (lines.length <= 1) { // Only header or empty
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">No historical data available yet.</td></tr>';
+                }
+
+            } catch (error) {
+                console.error('Error fetching historical metrics:', error);
+                document.querySelector('#history-table tbody').innerHTML = '<tr><td colspan="5" class="text-red-500 text-center py-4">Failed to load historical data. Ensure `system_monitor.sh` is running and `metrics_history.csv` exists.</td></tr>';
+            }
+        }
+
+        // Initial data load when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCurrentMetrics();
+            fetchHistoricalMetrics();
+
+            // Add event listener for the refresh button
+            document.getElementById('refresh-button').addEventListener('click', () => {
+                fetchCurrentMetrics();
+                fetchHistoricalMetrics();
+            });
+        });
+    </script>
+</body>
+</html>

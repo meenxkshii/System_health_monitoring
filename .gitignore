@@ -5,3 +5,7 @@ logs/
 # OS generated files
 .DS_Store
 .vscode/ # If you use VS Code
+
+# Generated metrics data
+current_metrics.json
+metrics_history.csv
