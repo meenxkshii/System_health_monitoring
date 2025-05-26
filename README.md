@@ -64,14 +64,37 @@ A simple yet robust Bash script to monitor critical system metrics (CPU, Memory,
     * Save and exit the crontab editor.
 
 6.  **View the Web Dashboard:**
-    After the `system_monitor.sh` script has run a few times (either manually or via cron), it will generate `current_metrics.json` and `metrics_history.csv` in the same directory.
-    You can then open `dashboard.html` directly in your web browser to view the metrics:
-    ```bash
-    xdg-open ~/devops_projects/dashboard.html
-    ```
-    (Replace `~/devops_projects/` with the actual path if you cloned it elsewhere).
-    Click the "Refresh Data" button on the dashboard to load the latest metrics.
 
+    After the `system_monitor.sh` script has run at least once (either manually or via cron), it will generate `current_metrics.json` and `metrics_history.csv` in the same directory.
+
+    **Recommended Way (Most Reliable): Use a Local Web Server**
+    For the dashboard to properly load data from local files, it's best to serve it using a simple HTTP server.
+    1.  Open your terminal and navigate to your `devops_projects` directory:
+        ```bash
+        cd ~/devops_projects
+        ```
+    2.  Start a simple Python HTTP server (leave this terminal window open):
+        ```bash
+        python3 -m http.server 8000
+        ```
+    3.  Open your web browser and navigate to:
+        ```
+        http://localhost:8000/dashboard.html
+        ```
+    4.  To stop the server, press `Ctrl+C` in the terminal where it's running.
+
+    **Alternative for WSL Users (via Windows Explorer):**
+    If you are using WSL, you can often open `dashboard.html` directly via your Windows File Explorer:
+    1.  Open Windows File Explorer.
+    2.  In the address bar, type `\\wsl$` and press Enter.
+    3.  Navigate to your Linux distribution (e.g., `Ubuntu`).
+    4.  Browse to `home` -> `your_username` -> `devops_projects`.
+    5.  Double-click `dashboard.html`.
+
+    **Note on `xdg-open` / Graphical Browsers:**
+    If you attempt to use `xdg-open ~/devops_projects/dashboard.html` and encounter errors like `xdg-open: no method available...` or "browser not found", it typically means you do not have a graphical web browser installed in your Linux environment or your desktop environment is not configured.
+    * **Solution (for Linux VMs with a GUI):** Install a browser like Firefox: `sudo apt update && sudo apt install firefox -y`.
+    * **Solution (for headless servers):** The local web server method (as described above) is the appropriate way to preview the dashboard.
 ## How it Works (Learning Outcomes)
 
 This project enhanced my understanding of:
@@ -89,7 +112,6 @@ This project enhanced my understanding of:
 * Store historical metric data in a simple database (e.g., SQLite) or CSV for trend analysis.
 * Add monitoring for other services (e.g., web server status, specific process checks).
 * Implement a more sophisticated logging mechanism.
-* Create a simple web dashboard to visualize metrics.
 
 ## License
 
